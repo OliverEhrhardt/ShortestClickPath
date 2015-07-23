@@ -1,0 +1,13 @@
+div.node{
+	border-radius: 50%;
+	height: 5px;
+	width: 5px;
+	background-color: black;
+	position: absolute;
+}
+
+canvas#grid{
+	height: 100%;
+	width: 100%;
+	position:inherit;
+}
