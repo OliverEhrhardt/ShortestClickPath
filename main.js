@@ -1,7 +1,7 @@
 /*
 	Notes:
 	some edges won't draw because of overlap detection when there is
-	no posible edge overlap between the two points. 
+	no posible edge overlap between two points. 
 */
 var nodes = []; //global array of all nodes on screen
 var edges = []; //global array of all edges on screen
@@ -45,11 +45,13 @@ function windowClick(e){
 					//console.log(checkOverlap(currEdge, edges[i]));
 					if(checkOverlap(currEdge, edges[i])){
 						noOverlap = false;
+						break;
 					}
 				}
 				if(noOverlap){
 					edges.push(currEdge);
 					var ctx = $('#grid')[0].getContext("2d");
+					ctx.strokeStyle = 'black';
 					ctx.beginPath();
 					ctx.moveTo(currEdge.first[0], currEdge.first[1]);
 					ctx.lineTo(currEdge.second[0], currEdge.second[1]);
@@ -57,21 +59,21 @@ function windowClick(e){
 					//console.log(edges);
 				}else{
 					delete currEdge;
-				}
+				}			
 			}
 			
 		});
-		
+		//console.log('next');
 	});
 }
 
 
-//check if edges overlaps
+//check if edges overlaps <<<ERROR>>>
 function checkOverlap(edge1, edge2){
-	slope1 = (edge1.second[1] - edge1.first[1])/(edge1.second[0]- edge1.first[0]);
-	slope2 = (edge2.second[1] - edge2.first[1])/(edge2.second[0]- edge2.first[0]);
-	yInt1 = edge1.first[1] - (slope1*edge1.first[0]);
-	yInt2 = edge2.first[1] - (slope2*edge2.first[0]);
+	var slope1 = (edge1.second[1] - edge1.first[1])/(edge1.second[0]- edge1.first[0]);
+	var slope2 = (edge2.second[1] - edge2.first[1])/(edge2.second[0]- edge2.first[0]);
+	var yInt1 = edge1.first[1] - (slope1*edge1.first[0]);
+	var yInt2 = edge2.first[1] - (slope2*edge2.first[0]);
 	
 	var xColision = (yInt2 - yInt1)/(slope1 - slope2);
 	xColision = xColision.toFixed(2);
@@ -86,11 +88,11 @@ function checkOverlap(edge1, edge2){
 		min = edge1.first[0];
 	}
 	
-	//console.log(max, min, xColision, yInt1, yInt2);
+	//console.log(max, min, xColision);
 	//console.log(slope1, slope2, yInt1, yInt2)
 	
 	if(xColision < max && xColision > min){
-		//console.log(max, min, xColision, edge2);
+		//console.log(max, min, xColision);
 		return true;
 	}else{
 		//console.log(false);
