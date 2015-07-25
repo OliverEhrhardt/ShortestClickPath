@@ -1,4 +1,4 @@
-div.node{
+.node{
 	height: 3px;
 	width: 3px;
 	background-color: black;
@@ -9,3 +9,9 @@ body{
 	margin: 0;
 }
 
+.marker{
+	height: 1000px;
+	width: 1px;
+	background-color: black;
+	position: absolute;
+}

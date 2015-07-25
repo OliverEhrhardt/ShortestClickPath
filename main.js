@@ -1,8 +1,3 @@
-/*
-	Notes:
-	some edges won't draw because of overlap detection when there is
-	no posible edge overlap between two points. 
-*/
 var nodes = []; //global array of all nodes on screen
 var edges = []; //global array of all edges on screen
 
@@ -28,7 +23,6 @@ function windowClick(e){
 		}
 		var currNode = createNode();
 		nodes.push(currNode);
-		//console.log(nodes);
 		//create edge data
 		function createEdge(node){
 			var edge = {};
@@ -36,13 +30,12 @@ function windowClick(e){
 			edge.second = [node.X, node.Y];
 			return edge;
 		}
-		//console.log(nodes);
+		//go through each node and check if edge is possible without overlap
 		nodes.forEach(function(node){
-			if(node.X != e.clientX && node.Y != e.clientY){
+			if(node.X != currNode.X && node.Y != currNode.Y){
 				var noOverlap = true
 				var currEdge = createEdge(node);
 				for(var i=0;i<edges.length;i++){
-					//console.log(checkOverlap(currEdge, edges[i]));
 					if(checkOverlap(currEdge, edges[i])){
 						noOverlap = false;
 						break;
@@ -56,47 +49,56 @@ function windowClick(e){
 					ctx.moveTo(currEdge.first[0], currEdge.first[1]);
 					ctx.lineTo(currEdge.second[0], currEdge.second[1]);
 					ctx.stroke();
-					//console.log(edges);
-				}else{
-					delete currEdge;
-				}			
+				}		
 			}
-			
 		});
-		//console.log('next');
 	});
 }
 
-
-//check if edges overlaps <<<ERROR>>>
-function checkOverlap(edge1, edge2){
-	var slope1 = (edge1.second[1] - edge1.first[1])/(edge1.second[0]- edge1.first[0]);
-	var slope2 = (edge2.second[1] - edge2.first[1])/(edge2.second[0]- edge2.first[0]);
-	var yInt1 = edge1.first[1] - (slope1*edge1.first[0]);
-	var yInt2 = edge2.first[1] - (slope2*edge2.first[0]);
-	
-	var xColision = (yInt2 - yInt1)/(slope1 - slope2);
-	xColision = xColision.toFixed(2);
-	
-	var max = 0;
-	var min = 0;
-	if(edge1.first[0] > edge1.second[0]){
-		max = edge1.first[0];
-		min = edge1.second[0];
+//find max x-coordinate of edge
+function max(edge){
+	if(edge.first[0] > edge.second[0]){
+		return edge.first[0];
 	}else{
-		max = edge1.second[0];
-		min = edge1.first[0];
+		return edge.second[0];
 	}
+}
+//find min x-coordinate of edge
+function min(edge){
+	if(edge.first[0] > edge.second[0]){
+		return edge.second[0];
+	}else{
+		return edge.first[0];
+	}}
+
+
+//check if edges overlaps
+function checkOverlap(edge1, edge2){
+	var a1x = edge1.first[0];
+	var a1y = edge1.first[1];
+	var a2x = edge1.second[0];
+	var a2y = edge1.second[1];
 	
-	//console.log(max, min, xColision);
-	//console.log(slope1, slope2, yInt1, yInt2)
+	var b1x = edge2.first[0];
+	var b1y = edge2.first[1];
+	var b2x = edge2.second[0];
+	var b2y = edge2.second[1];
 	
-	if(xColision < max && xColision > min){
-		//console.log(max, min, xColision);
+	var As = (a2y-a1y)/(a2x-a1x);
+	var Bs = (b2y-b1y)/(b2x-b1x);
+	
+	var xColision = Math.round((((As*a1x)-a1y-(Bs*b1x)+b1y)/(As-Bs))*100)/100;
+	var bounds1, bounds2 = false;
+	
+	if(xColision < max(edge1) && xColision > min(edge1)){
+		bounds1 = true;
+	}		
+	if(xColision < max(edge2) && xColision > min(edge2)){
+		bounds2 = true;
+	}
+	if(bounds1 && bounds2){
 		return true;
 	}else{
-		//console.log(false);
 		return false;
 	}
-	
 }
