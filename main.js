@@ -83,12 +83,18 @@ function checkOverlap(edge1, edge2){
 	var b1y = edge2.first[1];
 	var b2x = edge2.second[0];
 	var b2y = edge2.second[1];
-	
-	var As = (a2y-a1y)/(a2x-a1x);
-	var Bs = (b2y-b1y)/(b2x-b1x);
-	
-	var xColision = Math.round((((As*a1x)-a1y-(Bs*b1x)+b1y)/(As-Bs))*100)/100;
 	var bounds1, bounds2 = false;
+	
+	//evaluate special cases
+	if((a2x-a1x) == 0){
+		xColision = a1x;
+	}else if((b2x-b1x) == 0){
+		xColision = b1x;
+	}else{
+		var As = (a2y-a1y)/(a2x-a1x);
+		var Bs = (b2y-b1y)/(b2x-b1x);
+		var xColision = Math.round((((As*a1x)-a1y-(Bs*b1x)+b1y)/(As-Bs))*100)/100;
+	}
 	
 	if(xColision < max(edge1) && xColision > min(edge1)){
 		bounds1 = true;
