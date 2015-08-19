@@ -342,7 +342,7 @@ function checkOverlap(edge1, edge2){
 	var b1y = edge2.first.Y;
 	var b2x = edge2.second.X;
 	var b2y = edge2.second.Y;
-	var bounds1, bounds2, exc1, exc2 = false;
+	var bounds1, bounds2 = false;
 	
 	var As = (a2y-a1y)/(a2x-a1x);
 	var Bs = (b2y-b1y)/(b2x-b1x);
