@@ -9,4 +9,5 @@ highlights the shortest path between these two specific nodes.
 How to Use : All you must do is clone this repository onto your computer and open the 'index.html' (no quotes) file in your favorite browser.
 Note that this may not be supported on your browser so the recommendation is to use Google Chrome.
 
-Bugs: The only bug that rarely pops up is that sometimes when two nodes have the exact x or y coordinates on the map, they fail to draw an edge between each other. A quick fix is by putting another node in-between them.
+Bugs: Some nodes may appear to not connect to each other, but is simply the effect of two other nodes that have connected in
+front of the node blocking the other node's path. The blocking edge is so close to the node that you can barley see it.

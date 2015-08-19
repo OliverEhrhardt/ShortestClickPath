@@ -36,9 +36,8 @@ function main(){
 			return node;
 		}
 		var currNode = createNode();
-		nodes.push(currNode);
 		//create start and end nodes
-		if(nodes.length == 1){ //start node
+		if(nodes.length == 0){ //start node
 			var start = $("<div>").addClass('start');
 			makeDraggable(start);
 			$('body').append(start);
@@ -52,7 +51,7 @@ function main(){
 			startNode.div.css({
 				background: 'green'
 			});
-		}else if(nodes.length == 2){ //end node
+		}else if(nodes.length == 1){ //end node
 			var end = $("<div>").addClass('end');
 			makeDraggable(end);
 			$('body').append(end);
@@ -75,33 +74,40 @@ function main(){
 			return edge;
 		}
 		//go through each node and check if edge is possible without overlap
-		nodes.forEach(function(node){
-			if(node.X != currNode.X && node.Y != currNode.Y){
-				var noOverlap = true
+		if(nodes.length > 0){
+			nodes.forEach(function(node){
 				var currEdge = createEdge(node);
-				for(var i=0;i<edges.length;i++){
-					if(checkOverlap(currEdge, edges[i])){ //check overlap
-						noOverlap = false;
-						break;
+				if(edges.length > 0){
+					var noOverlap = true;
+					for(var i=0;i<edges.length;i++){
+						if(checkOverlap(currEdge, edges[i])){ //check overlap
+							noOverlap = false;
+							break;
+						}
 					}
-				}
 				//if no overlap draw edge :3
-				if(noOverlap){
-					var ctx = $('#grid')[0].getContext("2d");
-					ctx.beginPath();
-					ctx.moveTo(currEdge.first.X, currEdge.first.Y);
-					ctx.lineTo(currEdge.second.X, currEdge.second.Y);
-					ctx.lineWidth = 0;
-					ctx.strokeStyle = 'black';
-					ctx.stroke();
-					currEdge.brush = ctx;
+					if(noOverlap){
+						var ctx = $('#grid')[0].getContext("2d");
+						ctx.beginPath();
+						ctx.moveTo(currEdge.first.X, currEdge.first.Y);
+						ctx.lineTo(currEdge.second.X, currEdge.second.Y);
+						ctx.lineWidth = 0;
+						ctx.strokeStyle = 'black';
+						ctx.stroke();
+						edges.push(currEdge);
+						currEdge.first.adj.push(currEdge);
+						currEdge.second.adj.push(currEdge);					
+	
+					}		
+				}else{
 					edges.push(currEdge);
 					currEdge.first.adj.push(currEdge);
-					currEdge.second.adj.push(currEdge);					
-
-				}		
-			}
-		});
+					currEdge.second.adj.push(currEdge);
+				}
+			});
+		}
+		nodes.push(currNode);
+		
 		if(endNode){ //runs algorythm if there is exisiting endNode
 			findShortestPath();
 			displayShortestPath(endNode);
@@ -112,6 +118,7 @@ function main(){
 $(window).ready(main);
 
 /* ================================HELPER FUNCTIONS================================ */
+
 
 //init nodes
 function initNodes(){
@@ -184,6 +191,7 @@ function displayShortestPath(node){
 		displayShortestPath(node.prev);
 	}
 }
+
 
 //Dijkstra's Algorithm - highlights shortest path
 function findShortestPath(){
@@ -305,6 +313,23 @@ function min(edge){
 	}
 }
 
+//find max x-coordinate of edge
+function maxY(edge){
+	if(edge.first.Y > edge.second.Y){
+		return edge.first.Y;
+	}else{
+		return edge.second.Y;
+	}
+}
+//find min x-coordinate of edge
+function minY(edge){
+	if(edge.first.X < edge.second.X){
+		return edge.first.X;
+	}else{
+		return edge.second.X;
+	}
+}
+
 
 //check if edges overlaps
 function checkOverlap(edge1, edge2){
@@ -317,29 +342,45 @@ function checkOverlap(edge1, edge2){
 	var b1y = edge2.first.Y;
 	var b2x = edge2.second.X;
 	var b2y = edge2.second.Y;
-	var bounds1, bounds2 = false;
+	var bounds1, bounds2, exc1, exc2 = false;
 	
 	var As = (a2y-a1y)/(a2x-a1x);
 	var Bs = (b2y-b1y)/(b2x-b1x);
 	
 	//evaluate special cases
-	if(a2x == a1x){
+	if(As == Bs){
+		xColision = Infinity;
+	}else if(a2x == a1x){
 		xColision = a1x;
+		bounds1 = true;
+		if(maxY(edge1) >= minY(edge2)){
+			return false;
+		}if(minY(edge1) <= maxY(edge2)){
+			return false;
+		}
 	}else if(b2x == b1x){
 		xColision = b1x;
-	}else if(As == Bs){
-		xColision == Infinity;
-	}else{
+		bounds2 = true;
+		if(maxY(edge2) <= minY(edge1)){
+			return false;
+		}if(minY(edge2) >= maxY(edge1)){
+			return false;
+		}	
+	}
+	else{
 		var xColision = Math.round((((As*a1x)-a1y-(Bs*b1x)+b1y)/(As-Bs))*100)/100;
 	}
 	
 	if(xColision < max(edge1) && xColision > min(edge1)){
+		console.log(xColision,max(edge1),min(edge1));
 		bounds1 = true;
 	}		
 	if(xColision < max(edge2) && xColision > min(edge2)){
+		console.log(xColision,max(edge2),min(edge2));
 		bounds2 = true;
 	}
 	if(bounds1 && bounds2){
+		console.log(edge2);
 		return true;
 	}else{
 		return false;
