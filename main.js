@@ -199,7 +199,6 @@ function findShortestPath(){
 	while(endNode.visited != true){
 		var currNode = {adj : [], dist: Infinity};
 		nodes.forEach(function(node){
-			//console.log(node);
 			if(node.dist < currNode.dist && node.visited == false){
 				currNode = node;
 			};
@@ -244,7 +243,7 @@ function makeDraggable(el){
 			var nearestNode;
 			nodes.forEach(function(node){
 				var dist = getDistance(node, {X : upEvent.clientX, Y : upEvent.clientY});
-				if(dist < min){
+				if(dist < min && (!node.div.hasClass('start') || !node.div.hasClass('start'))){
 					min = dist
 					nearestNode = node; 
 				}
@@ -353,17 +352,13 @@ function checkOverlap(edge1, edge2){
 	}else if(a2x == a1x){
 		xColision = a1x;
 		bounds1 = true;
-		if(maxY(edge1) >= minY(edge2)){
-			return false;
-		}if(minY(edge1) <= maxY(edge2)){
+		if((maxY(edge1) >= minY(edge2)) && (minY(edge1) <= maxY(edge2))){
 			return false;
 		}
 	}else if(b2x == b1x){
 		xColision = b1x;
 		bounds2 = true;
-		if(maxY(edge2) <= minY(edge1)){
-			return false;
-		}if(minY(edge2) >= maxY(edge1)){
+		if((maxY(edge1) >= minY(edge2)) && (minY(edge1) <= maxY(edge2))){
 			return false;
 		}	
 	}
@@ -372,15 +367,12 @@ function checkOverlap(edge1, edge2){
 	}
 	
 	if(xColision < max(edge1) && xColision > min(edge1)){
-		console.log(xColision,max(edge1),min(edge1));
 		bounds1 = true;
 	}		
 	if(xColision < max(edge2) && xColision > min(edge2)){
-		console.log(xColision,max(edge2),min(edge2));
 		bounds2 = true;
 	}
 	if(bounds1 && bounds2){
-		console.log(edge2);
 		return true;
 	}else{
 		return false;
