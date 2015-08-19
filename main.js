@@ -2,12 +2,16 @@ var nodes = []; //global array of all nodes on screen
 var edges = []; //global array of all edges on screen
 var isDrag = false; //check drag
 var startNode, endNode; //start and end node of pathfinding algorithm
+var dragDiv; //keeps track of which node is being dragged.
 
-function main(e){
+/* ================================DRIVER FUNCTION================================ */
+
+
+function main(){
 	$('#grid').attr("height", $(document).height());
 	$('#grid').attr("width", $(document).width());
 	
-	$('body').click(function(e){
+	$('body').click(function(eBody){
 	
 		//check drag
 		if(isDrag) return false;
@@ -15,24 +19,26 @@ function main(e){
 		var nodeContainer = $("<div>").addClass('node');
 		$("body").append(nodeContainer);
 		nodeContainer.css({
-			top: e.clientY - nodeContainer.height()/2,
-			left: e.clientX - nodeContainer.width()/2
+			top: eBody.clientY - nodeContainer.height()/2,
+			left: eBody.clientX - nodeContainer.width()/2,
+			background: 'black'
 		});
 		//create node data
 		function createNode(){
 			var node = {};
-			node.X = e.clientX;
-			node.Y = e.clientY;
+			node.X = eBody.clientX;
+			node.Y = eBody.clientY;
 			node.adj = [];
 			node.visited = false;
 			node.dist = Infinity;
 			node.prev = null;
+			node.div = nodeContainer;
 			return node;
 		}
 		var currNode = createNode();
 		nodes.push(currNode);
 		//create start and end nodes
-		if(nodes.length == 1){
+		if(nodes.length == 1){ //start node
 			var start = $("<div>").addClass('start');
 			makeDraggable(start);
 			$('body').append(start);
@@ -43,7 +49,10 @@ function main(e){
 			});
 			startNode = currNode;
 			startNode.dist = 0;
-		}else if(nodes.length == 2){
+			startNode.div.css({
+				background: 'green'
+			});
+		}else if(nodes.length == 2){ //end node
 			var end = $("<div>").addClass('end');
 			makeDraggable(end);
 			$('body').append(end);
@@ -53,6 +62,9 @@ function main(e){
 				border: '2px solid red'
 			});
 			endNode = currNode;
+			endNode.div.css({
+				background: 'red'
+			});
 		}
 		//create edge data
 		function createEdge(node){
@@ -68,7 +80,7 @@ function main(e){
 				var noOverlap = true
 				var currEdge = createEdge(node);
 				for(var i=0;i<edges.length;i++){
-					if(checkOverlap(currEdge, edges[i])){
+					if(checkOverlap(currEdge, edges[i])){ //check overlap
 						noOverlap = false;
 						break;
 					}
@@ -85,12 +97,12 @@ function main(e){
 					currEdge.brush = ctx;
 					edges.push(currEdge);
 					currEdge.first.adj.push(currEdge);
-					currEdge.second.adj.push(currEdge);
+					currEdge.second.adj.push(currEdge);					
 
 				}		
 			}
 		});
-		if(endNode){
+		if(endNode){ //runs algorythm if there is exisiting endNode
 			findShortestPath();
 			displayShortestPath(endNode);
 		}
@@ -99,7 +111,7 @@ function main(e){
 
 $(window).ready(main);
 
-/* HELPER FUNCTIONS */
+/* ================================HELPER FUNCTIONS================================ */
 
 //init nodes
 function initNodes(){
@@ -128,6 +140,20 @@ function clearPath(node){
 		ctx.lineWidth = 0;
 		ctx.strokeStyle = 'black';
 		ctx.stroke();
+		if(node.prev != endNode && node.prev != startNode){
+			node.prev.div.css({
+				background: 'black'
+			});
+		}
+		if(dragDiv.hasClass('start')){
+			startNode.div.css({
+				background: 'black'
+			});	
+		}if(dragDiv.hasClass('end')){
+			endNode.div.css({
+				background: 'black'
+			});	
+		}
 		clearPath(node.prev);
 	}
 }
@@ -149,13 +175,11 @@ function displayShortestPath(node){
 		ctx.lineWidth = 0;
 		ctx.strokeStyle = 'yellow';
 		ctx.stroke();
-		/*
-if(node.prev != endNode && node.prev != startNode){
-			node.prev.css({
-				background-color: 'red'
+		if(node.prev != endNode && node.prev != startNode){
+			node.prev.div.css({
+				background: 'yellow'
 			});
 		}
-*/
 		
 		displayShortestPath(node.prev);
 	}
@@ -173,13 +197,6 @@ function findShortestPath(){
 			};
 		});
 		currNode.visited = true;
-		//queue.splice(queue.indexOf(currNode), 1);
-		//console.log(currNode);
-		//if(currNode == endNode)console.log('end, ', currNode);
-		/*
-var shortestEdge = {length: Infinity};
-		var nearestNode;
-*/
 		currNode.adj.forEach(function(edge){
 			var alt = currNode.dist + edge.len;
 			function updateDistance(node){
@@ -193,28 +210,6 @@ var shortestEdge = {length: Infinity};
 			}else{
 				updateDistance(edge.first);
 			}
-			/*
-if(edge.length < shortestEdge.length){
-				shortestEdge = edge;
-				if(shortestEdge.first = currNode){
-					nearestNode = shortestEdge.second;
-				}else{
-					nearestNode = shortestEdge.first;
-				}
-			}
-			if(edge.first != currNode){
-				var distance = edge.second.dist + edge.len;
-				if(distance < edge.first.dist){
-					edge.first.dist = distance;
-				}
-			}else{
-				var distance = edge.first.dist + edge.len;
-				if(distance < edge.second.dist){
-					edge.second.dist = distance;
-				}
-				
-			}
-*/
 		});
 	}
 }
@@ -222,6 +217,7 @@ if(edge.length < shortestEdge.length){
 //drag function for start and end nodes
 function makeDraggable(el){
 	el.on('mousedown', function(){
+		dragDiv = el;
 		isDrag = true;
 		clearPath(endNode);
 		initNodes();
@@ -266,9 +262,22 @@ function makeDraggable(el){
 				//setting new node and changing properties
 				nearestNode.dist = 0;
 				startNode = nearestNode;
+				//set node's color
+				setTimeout(function(){
+					nearestNode.div.css({
+						background: 'green'
+					});
+				}, 500);
+				
 			}
 			if(el.hasClass('end')){
 				endNode = nearestNode;
+				setTimeout(function(){
+					nearestNode.div.css({
+						background: 'red'
+					});
+				}, 500);
+				
 			}
 		});
 	});
@@ -310,14 +319,17 @@ function checkOverlap(edge1, edge2){
 	var b2y = edge2.second.Y;
 	var bounds1, bounds2 = false;
 	
+	var As = (a2y-a1y)/(a2x-a1x);
+	var Bs = (b2y-b1y)/(b2x-b1x);
+	
 	//evaluate special cases
-	if((a2x-a1x) == 0){
+	if(a2x == a1x){
 		xColision = a1x;
-	}else if((b2x-b1x) == 0){
+	}else if(b2x == b1x){
 		xColision = b1x;
+	}else if(As == Bs){
+		xColision == Infinity;
 	}else{
-		var As = (a2y-a1y)/(a2x-a1x);
-		var Bs = (b2y-b1y)/(b2x-b1x);
 		var xColision = Math.round((((As*a1x)-a1y-(Bs*b1x)+b1y)/(As-Bs))*100)/100;
 	}
 	
