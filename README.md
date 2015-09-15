@@ -6,8 +6,9 @@ Edges cannot cross over any pre-existing edges as to not mess with the shortest 
 (green and red color) represent the start and end nodes that the shortest path algorithm must use to compute. It then
 highlights the shortest path between these two specific nodes.
 
-How to Use : All you must do is clone this repository onto your computer and open the 'index.html' (no quotes) file in your favorite browser.
-Note that this may not be supported on your browser so the recommendation is to use Google Chrome. Then all you must do is click
+How to Use : All you must do is clone this repository (or download the zip) onto your computer and open the 'index.html' (no quotes) file in your favorite browser. Note that this may not be supported on your browser so the recommendation is to use Google Chrome. 
+
+Instructions: Then all you must do is click
 on the body of the document and nodes will appear. The green outlined node is the start node, and the red outlined node is the
 end node. Using Dajikstra's Algorithm it computes the shortest path between these two nodes through every other node you create.
 Simply drag the start and end to change which node is the start and end.
