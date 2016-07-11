@@ -1,3 +1,5 @@
+//changes!
+
 var nodes = []; //global array of all nodes on screen
 var edges = []; //global array of all edges on screen
 var isDrag = false; //check drag
